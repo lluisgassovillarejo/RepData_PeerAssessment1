@@ -10,7 +10,8 @@ output:
 
 We will load the data from the same directory where this file is located and replace NAs with 0:
 
-```{r echo = TRUE}
+
+```r
 activity_data <- read.csv("activity.csv")
 ```
 
@@ -19,7 +20,8 @@ activity_data <- read.csv("activity.csv")
 
 1. We will find out the total number of steps taken per day:
 
-```{r echo = TRUE}
+
+```r
 steps_by_day <- aggregate(steps~date, activity_data, sum)
 ```
 
@@ -36,15 +38,30 @@ steps_by_day <- aggregate(steps~date, activity_data, sum)
 
 The histogram looks like:
 
-```{r echo = TRUE}
+
+```r
 hist(steps_by_day$steps, col='blue', xlab='Steps', main='Daily Steps Distribution')
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 3. Mean and median of the daily steps are:
 
-```{r echo = TRUE}
+
+```r
 sprintf('Mean is: %.0f', mean(steps_by_day$steps))
+```
+
+```
+## [1] "Mean is: 10766"
+```
+
+```r
 sprintf('Median is: %i', median(steps_by_day$steps))
+```
+
+```
+## [1] "Median is: 10765"
 ```
 
 ## What is the average daily activity pattern?
@@ -53,23 +70,32 @@ sprintf('Median is: %i', median(steps_by_day$steps))
 
 First we will calculate the mean by 5 min. interval:
 
-```{r echo = TRUE}
+
+```r
 average_by_5_min <- aggregate(steps~interval, activity_data, mean)
 ```
 
 And then we plot the results as a trend line:
 
-```{r echo = TRUE}
+
+```r
 plot(x = average_by_5_min$interval, y = average_by_5_min$steps, type = 'l', xlab = 'Interval', ylab = 'Avg. Number of Steps')
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 2. Which 5-minute interval
 
 We will use the which.max function to get the interval with highest average of steps:
 
-```{r echo = TRUE}
+
+```r
 max_avg <- average_by_5_min$interval[which.max(average_by_5_min$steps)]
 sprintf('The interval with the highest average number of steps is: %.0f', max_avg)
+```
+
+```
+## [1] "The interval with the highest average number of steps is: 835"
 ```
 
 ## Imputing missing values
@@ -78,9 +104,14 @@ sprintf('The interval with the highest average number of steps is: %.0f', max_av
 
 We will count the number of NAs in the steps column
 
-```{r echo = TRUE}
+
+```r
 na_num <- sum(is.na(activity_data$steps))
 sprintf('There are %i NA values', na_num)
+```
+
+```
+## [1] "There are 2304 NA values"
 ```
 
 2. Devise a strategy for filling in all of the missing values in the dataset.
@@ -89,7 +120,8 @@ We will use the mean of the interval across all days to fill in the NA values.
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r echo = TRUE}
+
+```r
 # We iterate over all rows in the activity_data data frame and replace steps with the average of the interval.
 activity_data_clean <- activity_data
 for (row in 1:nrow(activity_data_clean)) { 
@@ -97,17 +129,28 @@ for (row in 1:nrow(activity_data_clean)) {
     activity_data_clean$steps[row] <- average_by_5_min$steps[average_by_5_min$interval==activity_data_clean$interval[row]] 
   } 
 }
-
 ```
 
 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day
 
 We will repeat the same process as with the initial data set:
 
-```{r echo = TRUE}
+
+```r
 steps_by_day_clean <- aggregate(steps~date, activity_data_clean, sum)
 sprintf('Mean is: %.0f', mean(steps_by_day_clean$steps))
+```
+
+```
+## [1] "Mean is: 10766"
+```
+
+```r
 sprintf('Median is: %.0f', median(steps_by_day_clean$steps))
+```
+
+```
+## [1] "Median is: 10766"
 ```
 
 The mean is the same, but the median has changed slightly.
@@ -116,9 +159,18 @@ The mean is the same, but the median has changed slightly.
 
 1. Create new factor variable
 
-```{r echo = TRUE}
+
+```r
 # As a first step, we will be convert the date column from factor to date type
 activity_data_clean$date <- as.Date(activity_data_clean$date)
+```
+
+```
+## Warning in strptime(xx, f <- "%Y-%m-%d", tz = "GMT"): unknown timezone
+## 'default/Asia/Bangkok'
+```
+
+```r
 # Create a vector of weekdays
 weekdays1 <- c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')
 # Get the
@@ -127,7 +179,8 @@ activity_data_clean$day_type <- c('Weekend', 'Weekday')[(weekdays(activity_data_
 
 2. Make a panel plot containing a time series plot
 
-```{r echo = TRUE}
+
+```r
 # First we get the mean aggregation by
 average_by_day_type <- aggregate(steps~day_type+interval, activity_data_clean, mean)
 
@@ -152,3 +205,5 @@ plot(
    ylab = 'Avg. Number of Steps'
 )
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
